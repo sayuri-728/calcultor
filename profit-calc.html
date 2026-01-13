@@ -4,18 +4,35 @@
     <meta charset="UTF-8">
     <title>損益額計算機</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
-        .box { background: white; padding: 25px; border-radius: 12px; max-width: 420px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-top: 0; color: #2c3e50; }
-        .type-select-group { margin-bottom: 25px; } 
-        .formula { background: #fff9db; padding: 12px; font-size: 13px; text-align: center; font-weight: bold; border-radius: 6px; color: #856404; border: 1px solid #ffeeba; }
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; color: #444; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-        .live-preview { font-size: 12px; color: #666; margin-top: 4px; text-align: right; min-height: 15px; }
-        .result-area { margin-top: 25px; padding: 20px; background: #e6fffa; border: 2px solid #38b2ac; border-radius: 10px; text-align: center; }
-        #resultValue { font-size: 34px; font-weight: bold; color: #2c7a7b; }
-        .res-label { font-size: 14px; color: #2c7a7b; margin-bottom: 5px; }
-        .note { font-size: 12px; color: #999; text-align: center; margin-top: 15px; }
+        /* 全体的に余白を削り、スクロール不要なサイズに調整 */
+        body { font-family: sans-serif; padding: 10px; background: #f0f4f8; margin: 0; }
+        .box { background: white; padding: 15px 20px; border-radius: 12px; max-width: 380px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; margin: 0 0 12px 0; color: #2c3e50; font-size: 20px; }
+        .type-select-group { margin-bottom: 12px; } 
+        .formula { background: #fff9db; padding: 8px; font-size: 11px; text-align: center; font-weight: bold; border-radius: 6px; color: #856404; border: 1px solid #ffeeba; min-height: 1.2em; }
+        label { display: block; margin-top: 8px; font-weight: bold; font-size: 13px; color: #444; }
+        input, select { width: 100%; padding: 8px; margin-top: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+        .live-preview { font-size: 11px; color: #666; margin-top: 2px; text-align: right; min-height: 13px; }
+        .result-area { margin-top: 15px; padding: 12px; background: #e6fffa; border: 2px solid #38b2ac; border-radius: 10px; text-align: center; }
+        #resultValue { font-size: 30px; font-weight: bold; color: #2c7a7b; }
+        .res-label { font-size: 13px; color: #2c7a7b; margin-bottom: 2px; }
+        .note { font-size: 11px; color: #999; text-align: center; margin-top: 8px; }
+
+        /* ボタンエリア（hrなし、余白縮小） */
+        .link-container { text-align: center; margin-top: 15px; }
+        .btn-link {
+            display: inline-block; 
+            padding: 10px 30px; 
+            background-color: #38b2ac; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            font-size: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .btn-link:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -48,9 +65,13 @@
 
     <div class="result-area">
         <div class="res-label">予想される損益額</div>
-        <span id="resultValue">5,000</span> <span style="font-size:20px; font-weight:bold; color:#2c7a7b;">円</span>
+        <span id="resultValue">5,000</span> <span style="font-size:18px; font-weight:bold; color:#2c7a7b;">円</span>
     </div>
     <div class="note">※ | | は絶対値（差の大きさ）を表します</div>
+
+    <div class="link-container">
+        <a href="index.html" class="btn-link">損益pips計算機はこちらへ</a>
+    </div>
 </div>
 
 <script>
@@ -63,12 +84,11 @@ function changeType() {
     const settle = document.getElementById('settle');
     const baseRate = document.getElementById('baseRate');
 
-    // 全タイプ共通で小数第5位まで入力可能にする
     entry.step = "0.00001";
     settle.step = "0.00001";
 
     if (type === 'eurgbp') {
-        formula.innerText = "式 : |エントリーレート - 決済レート| × 数量 × ポンド円レート";
+        formula.innerText = "式 : |レート差| × 数量 × ポンド円レート";
         rateLabel.innerText = "現在のポンド円レート";
         rateBox.style.display = 'block';
         if (parseFloat(entry.value) > 2) {
@@ -77,7 +97,7 @@ function changeType() {
             baseRate.value = "200.00"; 
         }
     } else if (type === 'usd') {
-        formula.innerText = "式 : |エントリーレート - 決済レート| × 数量 × ドル円レート";
+        formula.innerText = "式 : |レート差| × 数量 × ドル円レート";
         rateLabel.innerText = "現在のドル円レート";
         rateBox.style.display = 'block';
         if (parseFloat(entry.value) > 2) {
@@ -106,22 +126,14 @@ function run() {
 
     document.getElementById('qtyPreview').innerText = qty.toLocaleString() + " 通貨";
 
-    // 基本計算：レート差 × 数量
     let ans = Math.abs(entry - settle) * qty;
     if (type === 'usd' || type === 'eurgbp') {
         ans = ans * baseRate;
     }
-    // 損益額は円単位なので、四捨五入して整数で表示
     resultEl.innerText = Math.round(ans).toLocaleString();
 }
 window.onload = run;
 </script>
 
-<hr>
-<div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
-    <a href="index.html" style="display: inline-block; padding: 15px 40px; background-color: #38b2ac; color: white; text-align: center; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-        損益pips計算機はこちらへ
-    </a>
-</div>
 </body>
 </html>
