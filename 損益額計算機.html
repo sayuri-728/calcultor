@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>損益額計算機</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
+        .box { background: white; padding: 25px; border-radius: 12px; max-width: 420px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; margin-top: 0; color: #2c3e50; }
+        
+        .type-select-group { margin-bottom: 25px; } 
+        
+        .formula { background: #fff9db; padding: 12px; font-size: 13px; text-align: center; font-weight: bold; border-radius: 6px; color: #856404; border: 1px solid #ffeeba; }
+        
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; color: #444; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        
+        .result-area { margin-top: 25px; padding: 20px; background: #e6fffa; border: 2px solid #38b2ac; border-radius: 10px; text-align: center; }
+        #resultValue { font-size: 34px; font-weight: bold; color: #2c7a7b; }
+        .res-label { font-size: 14px; color: #2c7a7b; margin-bottom: 5px; }
+        .note { font-size: 12px; color: #999; text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>損益額計算機</h2>
+
+    <div class="type-select-group">
+        <label>計算タイプ</label>
+        <select id="type" onchange="changeType()">
+            <option value="jpy">クロス円 (USD/JPY等)</option>
+            <option value="usd">ドルストレート (EUR/USD等)</option>
+            <option value="eurgbp">ユーロポンド (EUR/GBP)</option>
+        </select>
+    </div>
+
+    <div class="formula" id="formula">式 : |エントリーレート - 決済レート| × 数量</div>
+
+    <label>エントリーレート</label>
+    <input type="number" id="entry" value="150.000" step="0.001" oninput="run()">
+
+    <label>決済レート</label>
+    <input type="number" id="settle" value="150.500" step="0.001" oninput="run()">
+
+    <label>数量 (通貨)</label>
+    <input type="number" id="qty" value="10000" oninput="run()">
+
+    <div id="rateBox" style="display:none;">
+        <label id="rateLabel">現在のドル円レート</label>
+        <input type="number" id="baseRate" value="150.00" step="0.01" oninput="run()">
+    </div>
+
+    <div class="result-area">
+        <div class="res-label">予想される損益額</div>
+        <span id="resultValue">5,000</span> <span style="font-size:20px; font-weight:bold; color:#2c7a7b;">円</span>
+    </div>
+    
+    <div class="note">※ | | は絶対値（差の大きさ）を表します</div>
+</div>
+
+<script>
+function changeType() {
+    const type = document.getElementById('type').value;
+    const formula = document.getElementById('formula');
+    const rateBox = document.getElementById('rateBox');
+    const rateLabel = document.getElementById('rateLabel');
+    const entry = document.getElementById('entry');
+    const settle = document.getElementById('settle');
+    const baseRate = document.getElementById('baseRate');
+
+    if (type === 'eurgbp') {
+        formula.innerText = "式 : |エントリーレート - 決済レート| × 数量 × ポンド円レート";
+        rateLabel.innerText = "現在のポンド円レート";
+        rateBox.style.display = 'block';
+        // EUR/GBP用のレート調整
+        if (parseFloat(entry.value) > 2) {
+            entry.value = "0.85000"; entry.step = "0.00001";
+            settle.value = "0.85500"; settle.step = "0.00001";
+            baseRate.value = "200.00"; 
+        }
+    } else if (type === 'usd') {
+        formula.innerText = "式 : |エントリーレート - 決済レート| × 数量 × ドル円レート";
+        rateLabel.innerText = "現在のドル円レート";
+        rateBox.style.display = 'block';
+        // ドルストレート用のレート調整
+        if (parseFloat(entry.value) > 2) {
+            entry.value = "1.08500"; entry.step = "0.00001";
+            settle.value = "1.08800"; settle.step = "0.00001";
+            baseRate.value = "150.00";
+        }
+    } else {
+        formula.innerText = "式 : |エントリーレート - 決済レート| × 数量";
+        rateBox.style.display = 'none';
+        // クロス円用のレート調整
+        if (parseFloat(entry.value) < 2) {
+            entry.value = "150.000"; entry.step = "0.001";
+            settle.value = "150.500"; settle.step = "0.001";
+        }
+    }
+    run();
+}
+
+function run() {
+    const type = document.getElementById('type').value;
+    const entry = parseFloat(document.getElementById('entry').value) || 0;
+    const settle = parseFloat(document.getElementById('settle').value) || 0;
+    const qty = parseFloat(document.getElementById('qty').value) || 0;
+    const baseRate = parseFloat(document.getElementById('baseRate').value) || 1;
+    const resultEl = document.getElementById('resultValue');
+
+    // 基本計算：レート差 × 数量
+    let ans = Math.abs(entry - settle) * qty;
+
+    // ドルストレート、またはユーロポンドの場合は円換算レートを掛ける
+    if (type === 'usd' || type === 'eurgbp') {
+        ans = ans * baseRate;
+    }
+
+    resultEl.innerText = Math.round(ans).toLocaleString();
+}
+
+window.onload = run;
+</script>
+
+</body>
+</html>
