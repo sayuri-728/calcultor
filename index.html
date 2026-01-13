@@ -4,18 +4,35 @@
     <meta charset="UTF-8">
     <title>損益pips計算機（EUR/GBP対応）</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
-        .box { background: white; padding: 25px; border-radius: 12px; max-width: 420px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; margin-top: 0; color: #2c3e50; }
-        .type-select-group { margin-bottom: 25px; } 
-        .formula { background: #e3f2fd; padding: 12px; font-size: 13px; text-align: center; font-weight: bold; border-radius: 6px; color: #1976d2; border: 1px solid #bbdefb; min-height: 1.2em; }
-        label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; color: #444; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
-        .live-preview { font-size: 12px; color: #666; margin-top: 4px; text-align: right; min-height: 15px; }
-        .result-area { margin-top: 25px; padding: 20px; background: #fff3e0; border: 2px solid #ffb74d; border-radius: 10px; text-align: center; }
-        #resultValue { font-size: 34px; font-weight: bold; color: #e65100; }
-        .res-label { font-size: 14px; color: #e65100; margin-bottom: 5px; }
-        .note { font-size: 12px; color: #999; text-align: center; margin-top: 15px; line-height: 1.5; }
+        /* 全体的に余白を削り、コンパクトに構成 */
+        body { font-family: sans-serif; padding: 10px; background: #f0f4f8; margin: 0; }
+        .box { background: white; padding: 15px 20px; border-radius: 12px; max-width: 380px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; margin: 0 0 15px 0; color: #2c3e50; font-size: 20px; }
+        .type-select-group { margin-bottom: 15px; } 
+        .formula { background: #e3f2fd; padding: 8px; font-size: 11px; text-align: center; font-weight: bold; border-radius: 6px; color: #1976d2; border: 1px solid #bbdefb; min-height: 1.2em; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; color: #444; }
+        input, select { width: 100%; padding: 8px; margin-top: 3px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+        .live-preview { font-size: 11px; color: #666; margin-top: 2px; text-align: right; min-height: 13px; }
+        .result-area { margin-top: 15px; padding: 12px; background: #fff3e0; border: 2px solid #ffb74d; border-radius: 10px; text-align: center; }
+        #resultValue { font-size: 30px; font-weight: bold; color: #e65100; }
+        .res-label { font-size: 13px; color: #e65100; margin-bottom: 2px; }
+        .note { font-size: 11px; color: #999; text-align: center; margin-top: 10px; line-height: 1.4; }
+        
+        /* ボタンエリアの調整（hrを消し、余白を縮小） */
+        .link-container { text-align: center; margin-top: 15px; }
+        .btn-link {
+            display: inline-block; 
+            padding: 10px 30px; 
+            background-color: #ffb74d; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .btn-link:hover { transform: scale(1.02); }
     </style>
 </head>
 <body>
@@ -49,11 +66,15 @@
 
     <div class="result-area">
         <div class="res-label">算出された損益幅</div>
-        <span id="resultValue">50</span> <span style="font-size:20px; font-weight:bold; color:#e65100;">pips</span>
+        <span id="resultValue">50</span> <span style="font-size:18px; font-weight:bold; color:#e65100;">pips</span>
     </div>
     
     <div class="note" id="pipsNote">
-        ※ 1pips = 0.01円
+        ※ クロス円：1pips = 0.01円
+    </div>
+
+    <div class="link-container">
+        <a href="profit-calc.html" class="btn-link">損益額計算機はこちらへ</a>
     </div>
 </div>
 
@@ -70,7 +91,7 @@ function changeType() {
         formula.innerText = "式：許容損益額 ÷ (取引数量 × 0.0001 × ポンド円レート)";
         rateLabel.innerText = "現在のポンド円レート (円)";
         rateBox.style.display = 'block';
-        pipsNote.innerHTML = "※ ユーロポンド：1pips = 0.0001ポンド<br>※ 決済通貨(GBP)を円に換算するためポンド円を使用";
+        pipsNote.innerHTML = "※ ユーロポンド：1pips = 0.0001ポンド<br>※ 決済通貨(GBP)を円換算するためポンド円を使用";
         if(parseFloat(baseRate.value) < 180) { baseRate.value = "200.00"; }
     } else if (type === 'usd') {
         formula.innerText = "式：許容損益額 ÷ (取引数量 × 0.0001 × ドル円レート)";
@@ -93,7 +114,6 @@ function run() {
     const baseRate = parseFloat(document.getElementById('baseRate').value) || 1;
     const resultEl = document.getElementById('resultValue');
 
-    // リアルタイム・コンマプレビュー
     document.getElementById('amountPreview').innerText = amount.toLocaleString() + " 円";
     document.getElementById('qtyPreview').innerText = qty.toLocaleString() + " 通貨";
 
@@ -109,31 +129,11 @@ function run() {
         pips = amount / (qty * 0.01);
     }
 
-    // 四捨五入して整数にし、コンマ区切りで表示
     resultEl.innerText = Math.round(pips).toLocaleString();
 }
 
 window.onload = run;
 </script>
-
-<hr>
-<div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
-    <a href="profit-calc.html" style="
-        display: inline-block; 
-        padding: 15px 40px; 
-        background-color: #ffb74d; 
-        color: white; 
-        text-align: center;
-        text-decoration: none; 
-        border-radius: 30px; 
-        font-weight: bold; 
-        font-size: 18px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-    ">
-        損益額計算機はこちらへ
-    </a>
-</div>
 
 </body>
 </html>
