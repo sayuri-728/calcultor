@@ -11,6 +11,7 @@
         .formula { background: #e3f2fd; padding: 12px; font-size: 13px; text-align: center; font-weight: bold; border-radius: 6px; color: #1976d2; border: 1px solid #bbdefb; min-height: 1.2em; }
         label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; color: #444; }
         input, select { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        .live-preview { font-size: 12px; color: #666; margin-top: 4px; text-align: right; min-height: 15px; }
         .result-area { margin-top: 25px; padding: 20px; background: #fff3e0; border: 2px solid #ffb74d; border-radius: 10px; text-align: center; }
         #resultValue { font-size: 34px; font-weight: bold; color: #e65100; }
         .res-label { font-size: 14px; color: #e65100; margin-bottom: 5px; }
@@ -35,9 +36,11 @@
 
     <label>許容損益額 (円)</label>
     <input type="number" id="amount" value="5000" oninput="run()">
+    <div id="amountPreview" class="live-preview">5,000 円</div>
 
     <label>取引数量 (通貨)</label>
     <input type="number" id="qty" value="10000" oninput="run()">
+    <div id="qtyPreview" class="live-preview">10,000 通貨</div>
 
     <div id="rateBox" style="display:none;">
         <label id="rateLabel">現在のドル円レート (円)</label>
@@ -46,7 +49,7 @@
 
     <div class="result-area">
         <div class="res-label">算出された損益幅</div>
-        <span id="resultValue">50.0</span> <span style="font-size:20px; font-weight:bold; color:#e65100;">pips</span>
+        <span id="resultValue">50</span> <span style="font-size:20px; font-weight:bold; color:#e65100;">pips</span>
     </div>
     
     <div class="note" id="pipsNote">
@@ -68,13 +71,13 @@ function changeType() {
         rateLabel.innerText = "現在のポンド円レート (円)";
         rateBox.style.display = 'block';
         pipsNote.innerHTML = "※ ユーロポンド：1pips = 0.0001ポンド<br>※ 決済通貨(GBP)を円に換算するためポンド円を使用";
-        if(baseRate.value > 180) {} else { baseRate.value = "200.00"; } // ポンド円っぽい数値に
+        if(parseFloat(baseRate.value) < 180) { baseRate.value = "200.00"; }
     } else if (type === 'usd') {
         formula.innerText = "式：許容損益額 ÷ (取引数量 × 0.0001 × ドル円レート)";
         rateLabel.innerText = "現在のドル円レート (円)";
         rateBox.style.display = 'block';
         pipsNote.innerText = "※ ドルストレート：1pips = 0.0001ドル";
-        baseRate.value = "150.00";
+        if(parseFloat(baseRate.value) > 180) { baseRate.value = "150.00"; }
     } else {
         formula.innerText = "式：許容損益額 ÷ (取引数量 × 0.01)";
         rateBox.style.display = 'none';
@@ -90,21 +93,24 @@ function run() {
     const baseRate = parseFloat(document.getElementById('baseRate').value) || 1;
     const resultEl = document.getElementById('resultValue');
 
+    // リアルタイム・コンマプレビュー
+    document.getElementById('amountPreview').innerText = amount.toLocaleString() + " 円";
+    document.getElementById('qtyPreview').innerText = qty.toLocaleString() + " 通貨";
+
     if (qty === 0) {
-        resultEl.innerText = "0.0";
+        resultEl.innerText = "0";
         return;
     }
 
     let pips = 0;
     if (type === 'eurgbp' || type === 'usd') {
-        // どちらも 0.0001 に対して「円換算レート」を掛ける仕組みは同じです
         pips = amount / (qty * 0.0001 * baseRate);
     } else {
-        // クロス円
         pips = amount / (qty * 0.01);
     }
 
-    resultEl.innerText = pips.toFixed(1);
+    // 四捨五入して整数にし、コンマ区切りで表示
+    resultEl.innerText = Math.round(pips).toLocaleString();
 }
 
 window.onload = run;
@@ -129,9 +135,5 @@ window.onload = run;
     </a>
 </div>
 
-    
 </body>
 </html>
-
-
-
