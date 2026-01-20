@@ -11,8 +11,6 @@
             --accent-green: #38a169;
             --accent-orange: #dd6b20;
             --bg-color: #f0f4f8;
-            --loss-color: #e53e3e;
-            --profit-color: #2c7a7b;
         }
 
         body { font-family: sans-serif; padding: 10px; background: var(--bg-color); margin: 0; }
@@ -38,7 +36,7 @@
         .card-danger { background: #fff5f5; border-color: #feb2b2; grid-column: span 3; }
         .card-info { background: #ebf8ff; border-color: #90cdf4; }
         .card-success { background: #f0fff4; border-color: #9ae6b4; }
-        .card-orange { background: #fffaf0; border-color: #fbd38d; }
+        .card-orange { background: #fffaf0; border-color: #fbd38d; grid-column: span 1.5; }
 
         .res-label { font-size: 11px; font-weight: bold; color: #4a5568; margin-bottom: 5px; }
         .res-value { font-size: 18px; font-weight: bold; color: #2d3748; }
@@ -59,22 +57,20 @@
 
     <div id="profitTab" class="box active">
         <h2>損益額・損益pips 計算</h2>
-        <div class="grid-2">
-            <div class="input-group">
-                <label>通貨ペア種別</label>
-                <select id="p_type" onchange="profitChangeType()">
-                    <option value="jpy">クロス円</option>
-                    <option value="usd">ドルストレート</option>
-                    <option value="eurgbp">ユーロポンド</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>売買</label>
-                <select id="p_side" onchange="profitRun()">
-                    <option value="buy">買い</option>
-                    <option value="sell">売り</option>
-                </select>
-            </div>
+        <div class="input-group">
+            <label>通貨ペア種別</label>
+            <select id="p_type" onchange="profitChangeType()">
+                <option value="jpy">クロス円 (USD/JPY等)</option>
+                <option value="usd">ドルストレート (EUR/USD等)</option>
+                <option value="eurgbp">ユーロポンド (EUR/GBP)</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>売買</label>
+            <select id="p_side" onchange="profitRun()">
+                <option value="buy">買い</option>
+                <option value="sell">売り</option>
+            </select>
         </div>
         <div class="grid-2">
             <div class="input-group">
@@ -97,13 +93,13 @@
             </div>
         </div>
         <div class="results-container" style="grid-template-columns: 1fr 1fr;">
-            <div class="result-card" id="cardProfit" style="background: #f0fff4; border-color: #9ae6b4; grid-column: span 1;">
+            <div class="result-card card-success" style="grid-column: span 1;">
                 <div class="res-label">損益額</div>
-                <div class="res-value" id="resProfit">---</div><span class="res-unit">円</span>
+                <div class="res-value" id="resProfit" style="color: #2c7a7b;">---</div><span class="res-unit">円</span>
             </div>
-            <div class="result-card" id="cardPips" style="background: #fffaf0; border-color: #fbd38d; grid-column: span 1;">
+            <div class="result-card card-orange" style="grid-column: span 1;">
                 <div class="res-label">損益pips</div>
-                <div class="res-value" id="resPips">---</div><span class="res-unit">pips</span>
+                <div class="res-value" id="resPips" style="color: #e65100;">---</div><span class="res-unit">pips</span>
             </div>
         </div>
         <div class="note" id="p_note">pips計算: 0.01 = 1pips</div>
@@ -111,15 +107,15 @@
 
     <div id="marginTab" class="box">
         <h2>証拠金・ロスカット計算</h2>
+        <div class="input-group">
+            <label>通貨ペア種別</label>
+            <select id="m_type" onchange="marginChangeType()">
+                <option value="jpy">クロス円 (USD/JPY等)</option>
+                <option value="usd">ドルストレート (EUR/USD等)</option>
+                <option value="eurgbp">ユーロポンド (EUR/GBP)</option>
+            </select>
+        </div>
         <div class="grid-2">
-            <div class="input-group">
-                <label>通貨ペア種別</label>
-                <select id="m_type" onchange="marginChangeType()">
-                    <option value="jpy">クロス円</option>
-                    <option value="usd">ドルストレート</option>
-                    <option value="eurgbp">ユーロポンド</option>
-                </select>
-            </div>
             <div class="input-group">
                 <label>売買</label>
                 <select id="m_side" onchange="marginRun()">
@@ -127,24 +123,24 @@
                     <option value="sell">売り</option>
                 </select>
             </div>
-        </div>
-        <div class="grid-2">
             <div class="input-group">
                 <label>エントリーレート</label>
                 <input type="number" id="m_entry" value="150.000" step="0.001" oninput="marginRun()">
-            </div>
-            <div class="input-group">
-                <label>最大レバレッジ (倍)</label>
-                <input type="number" id="m_maxLev" value="25" oninput="marginRun()">
             </div>
         </div>
         <div class="input-group">
             <label>口座残高 (円)</label>
             <input type="text" id="m_balance" value="100,000" oninput="formatInput(this); marginRun();">
         </div>
-        <div class="input-group">
-            <label>取引数量 (通貨)</label>
-            <input type="text" id="m_qty" value="10,000" oninput="formatInput(this); marginRun();">
+        <div class="grid-2">
+            <div class="input-group">
+                <label>取引数量 (通貨)</label>
+                <input type="text" id="m_qty" value="10,000" oninput="formatInput(this); marginRun();">
+            </div>
+            <div class="input-group">
+                <label>最大レバレッジ (倍)</label>
+                <input type="number" id="m_maxLev" value="25" oninput="marginRun()">
+            </div>
         </div>
         <div id="m_rateBox" style="display:none;">
             <div class="input-group">
@@ -165,15 +161,15 @@
                 <div class="res-value" id="resMargin">---</div><span class="res-unit">円</span>
             </div>
             <div class="result-card card-info">
-                <div class="res-label">維持率</div>
+                <div class="res-label">証拠金維持率</div>
                 <div class="res-value" id="resRatio">---</div><span class="res-unit">%</span>
             </div>
             <div class="result-card card-success">
-                <div class="res-label">実効レバ</div>
+                <div class="res-label">実効レバレッジ</div>
                 <div class="res-value" id="resEffLev">---</div><span class="res-unit">倍</span>
             </div>
         </div>
-        <div class="note">※ 維持率100%でロスカットと仮定しています。</div>
+        <div class="note">※ 証拠金維持率100%でロスカットと仮定しています。</div>
     </div>
 </div>
 
@@ -193,12 +189,9 @@ function formatInput(input) {
 }
 
 function parseVal(id) {
-    const el = document.getElementById(id);
-    if (!el) return 0;
-    return parseFloat(el.value.replace(/,/g, '')) || 0;
+    return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
 }
 
-// --- 証拠金・ロスカット計算 ---
 function marginChangeType() {
     const type = document.getElementById('m_type').value;
     const rateBox = document.getElementById('m_rateBox');
@@ -229,51 +222,53 @@ function marginRun() {
     const maxLev = parseVal('m_maxLev');
     const baseRate = parseVal('m_baseRate');
 
-    if (qty <= 0 || entry <= 0 || balance <= 0 || maxLev <= 0) return;
+    if (qty <= 0 || entry <= 0 || balance <= 0) return;
 
-    // 必要証拠金の算出用レート
     let calcRate = (type === 'jpy') ? entry : (entry * baseRate);
-    
-    // 必要証拠金 = (レート × 数量) / レバレッジ
     let requiredMargin = (calcRate * qty) / maxLev;
     let marginRatio = (balance / requiredMargin) * 100;
     let effectiveLev = (calcRate * qty) / balance;
-    
-    // 許容損失額 (維持率100%想定)
     let allowableLoss = balance - requiredMargin;
-    
-    // 1pipsの単位
     let pipsUnit = (type === 'jpy') ? 0.01 : 0.0001;
-    
-    // ロスカットまでの値幅
     let lcDiff = (type === 'jpy') ? (allowableLoss / qty) : (allowableLoss / qty / baseRate);
     let lcRate = (side === 'buy') ? (entry - lcDiff) : (entry + lcDiff);
     let pipsToLc = Math.abs(entry - lcRate) / pipsUnit;
 
-    // 結果反映
     document.getElementById('resMargin').innerText = Math.round(requiredMargin).toLocaleString();
     document.getElementById('resRatio').innerText = Math.round(marginRatio).toLocaleString();
     document.getElementById('resEffLev').innerText = effectiveLev.toFixed(2);
-    document.getElementById('resLcRate').innerText = (type === 'jpy') ? lcRate.toFixed(3) : lcRate.toFixed(5);
+    
+    if (type === 'jpy') {
+        document.getElementById('resLcRate').innerText = lcRate.toFixed(3);
+    } else {
+        document.getElementById('resLcRate').innerText = lcRate.toFixed(5);
+    }
+    
     document.getElementById('m_resPipsToLc').innerText = Math.round(pipsToLc).toLocaleString();
 }
 
-// --- 損益計算 ---
 function profitChangeType() {
     const type = document.getElementById('p_type').value;
     const rateBox = document.getElementById('p_rateBox');
+    const rateLabel = document.getElementById('p_rateLabel');
     const note = document.getElementById('p_note');
     const entry = document.getElementById('p_entry');
     const settle = document.getElementById('p_settle');
 
     if (type === 'jpy') {
         rateBox.style.display = 'none';
-        note.innerText = "pips計算: 0.01 = 1pips";
+        note.innerText = "pips計算: 0.01 = 1pips\n損益計算: pips × 0.01 × 数量";
         if (parseFloat(entry.value) < 2) { entry.value = "150.000"; settle.value = "150.500"; }
-    } else {
+    } else if (type === 'usd') {
         rateBox.style.display = 'block';
-        note.innerText = "pips計算: 0.0001 = 1pips";
+        rateLabel.innerText = "ドル円レート (USD/JPY)";
+        note.innerText = "pips計算: 0.0001 = 1pips\n損益計算: pips × 数量 × ドル円";
         if (parseFloat(entry.value) > 2) { entry.value = "1.08000"; settle.value = "1.08500"; }
+    } else if (type === 'eurgbp') {
+        rateBox.style.display = 'block';
+        rateLabel.innerText = "ポンド円レート (GBP/JPY)";
+        note.innerText = "pips計算: 0.0001 = 1pips\n損益計算: pips × 数量 × ポンド円";
+        if (parseFloat(entry.value) > 2) { entry.value = "0.85000"; settle.value = "0.85500"; }
     }
     profitRun();
 }
@@ -289,31 +284,20 @@ function profitRun() {
     if (qty <= 0) return;
 
     const diff = (side === 'buy') ? (settle - entry) : (entry - settle);
+    
     let pips = (type === 'jpy') ? diff / 0.01 : diff / 0.0001;
     let profit = (type === 'jpy') ? diff * qty : diff * qty * baseRate;
 
-    const resPipsEl = document.getElementById('resPips');
-    const resProfitEl = document.getElementById('resProfit');
+    const prefix = profit > 0 ? "+" : "";
+    document.getElementById('resPips').innerText = prefix + pips.toFixed(1);
+    document.getElementById('resProfit').innerText = prefix + Math.round(profit).toLocaleString();
 
-    resPipsEl.innerText = (pips > 0 ? "+" : "") + pips.toFixed(1);
-    resProfitEl.innerText = (profit > 0 ? "+" : "") + Math.round(profit).toLocaleString();
-
-    if (profit > 0) {
-        resProfitEl.style.color = "var(--profit-color)";
-        resPipsEl.style.color = "var(--accent-orange)";
-    } else if (profit < 0) {
-        resProfitEl.style.color = "var(--loss-color)";
-        resPipsEl.style.color = "var(--loss-color)";
-    } else {
-        resProfitEl.style.color = "var(--primary-color)";
-        resPipsEl.style.color = "var(--primary-color)";
-    }
+    // マイナスでも赤文字にせず、デフォルトの配色（緑系とオレンジ系）を維持するように修正
+    document.getElementById('resProfit').style.color = "#2c7a7b";
+    document.getElementById('resPips').style.color = "#e65100";
 }
 
-window.onload = () => { 
-    marginRun(); 
-    profitRun(); 
-};
+window.onload = () => { marginRun(); profitRun(); };
 </script>
 </body>
 </html>
