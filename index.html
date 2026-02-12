@@ -45,6 +45,7 @@
         .res-unit { font-size: 11px; margin-left: 2px; }
 
         .note { font-size: 11px; color: #718096; margin-top: 15px; line-height: 1.5; background: #f7fafc; padding: 10px; border-radius: 6px; white-space: pre-line; }
+        .formula-note { font-size: 10px; color: #718096; margin-top: 2px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -129,8 +130,9 @@
             </div>
         </div>
         <div class="input-group">
-            <label>口座残高 (円)</label>
+            <label>有効証拠金 (円)</label>
             <input type="text" id="m_balance" value="100,000" oninput="formatInput(this); marginRun();">
+            <div class="formula-note">有効証拠金＝口座残高±評価損益（含み益・含み損）＋スワップ評価損益</div>
         </div>
         <div class="grid-2">
             <div class="input-group">
@@ -292,7 +294,6 @@ function profitRun() {
     document.getElementById('resPips').innerText = prefix + pips.toFixed(1);
     document.getElementById('resProfit').innerText = prefix + Math.round(profit).toLocaleString();
 
-    // マイナスでも赤文字にせず、デフォルトの配色（緑系とオレンジ系）を維持するように修正
     document.getElementById('resProfit').style.color = "#2c7a7b";
     document.getElementById('resPips').style.color = "#e65100";
 }
